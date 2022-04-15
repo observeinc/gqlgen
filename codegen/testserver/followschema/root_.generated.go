@@ -360,6 +360,7 @@ type ComplexityRoot struct {
 		DirectiveDouble        func(childComplexity int) int
 		DirectiveNullableArg   func(childComplexity int, arg *int, arg2 *int, arg3 *string) int
 		DirectiveUnimplemented func(childComplexity int) int
+		ErrorRequired          func(childComplexity int) int
 		InitPayload            func(childComplexity int) int
 		Issue896b              func(childComplexity int) int
 		Updated                func(childComplexity int) int
@@ -1675,6 +1676,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Subscription.DirectiveUnimplemented(childComplexity), true
 
+	case "Subscription.errorRequired":
+		if e.complexity.Subscription.ErrorRequired == nil {
+			break
+		}
+
+		return e.complexity.Subscription.ErrorRequired(childComplexity), true
+
 	case "Subscription.initPayload":
 		if e.complexity.Subscription.InitPayload == nil {
 			break
@@ -1886,7 +1894,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		var buf bytes.Buffer
 		return func(ctx context.Context) *graphql.Response {
 			buf.Reset()
-			data := next()
+			data := next(ctx)
 
 			if data == nil {
 				return nil
@@ -2188,6 +2196,10 @@ input NestedInput {
     errorList: [Error]
     errors: Errors
     valid: String!
+}
+
+extend type Subscription {
+	errorRequired: Error!
 }
 
 type Errors {
