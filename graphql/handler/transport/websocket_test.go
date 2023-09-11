@@ -323,7 +323,10 @@ func TestWebsocketInitFunc(t *testing.T) {
 		assert.Equal(t, connectionAckMsg, connAck.Type)
 
 		var payload map[string]interface{}
-		json.Unmarshal(connAck.Payload, &payload)
+		err := json.Unmarshal(connAck.Payload, &payload)
+		if err != nil {
+			t.Fatal("Unexpected Error", err)
+		}
 		assert.EqualValues(t, "123-456", payload["trackingId"])
 		assert.Equal(t, connectionKeepAliveMsg, readOp(c).Type)
 	})
