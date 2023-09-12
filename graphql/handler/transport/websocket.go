@@ -44,7 +44,7 @@ type (
 		initPayload InitPayload
 	}
 
-	WebsocketInitFunc  func(ctx context.Context, initPayload InitPayload) (*InitPayload, context.Context, error)
+	WebsocketInitFunc  func(ctx context.Context, initPayload InitPayload) (context.Context, *InitPayload, error)
 	WebsocketErrorFunc func(ctx context.Context, err error)
 
 	// Callback called when websocket is closed.
@@ -182,7 +182,7 @@ func (c *wsConnection) init() bool {
 		var initAckPayload *InitPayload = nil
 		if c.InitFunc != nil {
 			var ctx context.Context
-			initAckPayload, ctx, err = c.InitFunc(c.ctx, c.initPayload)
+			ctx, initAckPayload, err = c.InitFunc(c.ctx, c.initPayload)
 			if err != nil {
 				c.sendConnectionError(err.Error())
 				c.close(websocket.CloseNormalClosure, "terminated")
