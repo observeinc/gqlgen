@@ -5,3 +5,7 @@ type Query {
 type Resolver {
     name: String!
 }
+
+input TestInput {
+    input_name: String!
+}

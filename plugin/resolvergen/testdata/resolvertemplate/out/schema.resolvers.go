@@ -23,6 +23,12 @@ func (r *resolverCustomResolverType) Name(ctx context.Context, obj *customresolv
 	panic(fmt.Errorf("custom Resolver not implemented: Name - name"))
 }
 
+// InputName is the resolver for the input_name field.
+func (r *testInputCustomResolverType) InputName(ctx context.Context, obj *customresolver.TestInput, data string) error {
+	// Custom Resolver implementation
+	panic(fmt.Errorf("custom Resolver not implemented: InputName - inputName"))
+}
+
 // Query returns customresolver.QueryResolver implementation.
 func (r *CustomResolverType) Query() customresolver.QueryResolver { return &queryCustomResolverType{r} }
 
@@ -31,5 +37,11 @@ func (r *CustomResolverType) Resolver() customresolver.ResolverResolver {
 	return &resolverCustomResolverType{r}
 }
 
+// TestInput returns customresolver.TestInputResolver implementation.
+func (r *CustomResolverType) TestInput() customresolver.TestInputResolver {
+	return &testInputCustomResolverType{r}
+}
+
 type queryCustomResolverType struct{ *CustomResolverType }
 type resolverCustomResolverType struct{ *CustomResolverType }
+type testInputCustomResolverType struct{ *CustomResolverType }

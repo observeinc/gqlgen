@@ -26,6 +26,13 @@ func TestLayoutSingleFile(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NoError(t, p.GenerateCode(data))
+
+	b, err := os.ReadFile("testdata/singlefile/out/resolver.go")
+	require.NoError(t, err)
+	source := string(b)
+	require.Contains(t, source, "func (r *CustomResolverType) Query() QueryResolver { return &queryCustomResolverType{r} }")
+	require.Contains(t, source, "func (r *testInputCustomResolverType) InputName(ctx context.Context, obj *TestInput, data string) error {")
+
 	assertNoErrors(t, "github.com/99designs/gqlgen/plugin/resolvergen/testdata/singlefile/out")
 }
 

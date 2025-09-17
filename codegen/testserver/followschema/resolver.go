@@ -537,6 +537,11 @@ func (r *wrappedSliceResolver) Get(ctx context.Context, obj WrappedSlice, idx in
 	panic("not implemented")
 }
 
+// OverrideFirstField is the resolver for the overrideFirstField field.
+func (r *fieldsOrderInputResolver) OverrideFirstField(ctx context.Context, obj *FieldsOrderInput, data *string) error {
+	panic("not implemented")
+}
+
 // BackedByInterface returns BackedByInterfaceResolver implementation.
 func (r *Resolver) BackedByInterface() BackedByInterfaceResolver {
 	return &backedByInterfaceResolver{r}
@@ -589,6 +594,9 @@ func (r *Resolver) WrappedMap() WrappedMapResolver { return &wrappedMapResolver{
 // WrappedSlice returns WrappedSliceResolver implementation.
 func (r *Resolver) WrappedSlice() WrappedSliceResolver { return &wrappedSliceResolver{r} }
 
+// FieldsOrderInput returns FieldsOrderInputResolver implementation.
+func (r *Resolver) FieldsOrderInput() FieldsOrderInputResolver { return &fieldsOrderInputResolver{r} }
+
 type backedByInterfaceResolver struct{ *Resolver }
 type deferModelResolver struct{ *Resolver }
 type errorsResolver struct{ *Resolver }
@@ -605,3 +613,4 @@ type subscriptionResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
 type wrappedMapResolver struct{ *Resolver }
 type wrappedSliceResolver struct{ *Resolver }
+type fieldsOrderInputResolver struct{ *Resolver }

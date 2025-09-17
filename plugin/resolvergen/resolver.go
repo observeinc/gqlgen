@@ -66,7 +66,7 @@ func (m *Plugin) generateSingleFile(data *codegen.Data) error {
 		return err
 	}
 
-	for _, o := range data.Objects {
+	for _, o := range append(data.Objects, data.Inputs...) {
 		if o.HasResolvers() {
 			caser := cases.Title(language.English, cases.NoLower)
 			rewriter.MarkStructCopied(templates.LcFirst(o.Name) + templates.UcFirst(data.Config.Resolver.Type))
