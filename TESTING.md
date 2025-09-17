@@ -3,6 +3,7 @@ How to write tests for gqlgen
 
 Testing generated code is a little tricky, here's how its currently set up.
 
+XXX 
 ### Testing responses from a server
 
 There is a server in `codegen/testserver` that is generated as part
