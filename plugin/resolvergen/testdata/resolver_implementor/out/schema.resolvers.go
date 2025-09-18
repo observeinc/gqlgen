@@ -18,11 +18,20 @@ func (r *resolverCustomResolverType) Name(ctx context.Context, obj *Resolver) (s
 	panic("implementor implemented me")
 }
 
+// InputName is the resolver for the input_name field.
+func (r *testInputCustomResolverType) InputName(ctx context.Context, obj *TestInput, data string) error {
+	panic("implementor implemented me")
+}
+
 // Query returns QueryResolver implementation.
 func (r *CustomResolverType) Query() QueryResolver { return &queryCustomResolverType{r} }
 
 // Resolver returns ResolverResolver implementation.
 func (r *CustomResolverType) Resolver() ResolverResolver { return &resolverCustomResolverType{r} }
 
+// TestInput returns TestInputResolver implementation.
+func (r *CustomResolverType) TestInput() TestInputResolver { return &testInputCustomResolverType{r} }
+
 type queryCustomResolverType struct{ *CustomResolverType }
 type resolverCustomResolverType struct{ *CustomResolverType }
+type testInputCustomResolverType struct{ *CustomResolverType }

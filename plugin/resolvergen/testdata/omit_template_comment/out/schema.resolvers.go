@@ -20,11 +20,20 @@ func (r *resolverCustomResolverType) Name(ctx context.Context, obj *customresolv
 	panic(fmt.Errorf("not implemented: Name - name"))
 }
 
+func (r *testInputCustomResolverType) InputName(ctx context.Context, obj *customresolver.TestInput, data string) error {
+	panic(fmt.Errorf("not implemented: InputName - input_name"))
+}
+
 func (r *CustomResolverType) Query() customresolver.QueryResolver { return &queryCustomResolverType{r} }
 
 func (r *CustomResolverType) Resolver() customresolver.ResolverResolver {
 	return &resolverCustomResolverType{r}
 }
 
+func (r *CustomResolverType) TestInput() customresolver.TestInputResolver {
+	return &testInputCustomResolverType{r}
+}
+
 type queryCustomResolverType struct{ *CustomResolverType }
 type resolverCustomResolverType struct{ *CustomResolverType }
+type testInputCustomResolverType struct{ *CustomResolverType }
