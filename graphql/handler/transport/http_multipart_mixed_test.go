@@ -54,9 +54,20 @@ func TestMultipartMixed(t *testing.T) {
 		assert.Equal(t, "application/json", resp.Header().Get("Content-Type"))
 		assert.JSONEq(
 			t,
-			`{"errors":[{"message":"json request body could not be decoded: invalid character 'o' in literal null (expecting 'u') body:notjson"}],"data":null}`,
+			`{"errors":[{"message":"json request body could not be decoded: invalid character 'o' in literal null (expecting 'u') (body omitted, 7 bytes)"}],"data":null}`,
 			resp.Body.String(),
 		)
+	})
+
+	t.Run("decode failure does not echo the request body", func(t *testing.T) {
+		// See the same guard in http_post_test.go. This transport also logged the
+		// body to stdout, where no host-side redaction could reach it.
+		const sentinel = "s3cr3t-do-not-echo"
+		handler, srv := initializeWithServer()
+		resp := doRequest(handler, srv.URL, `{"query":"{ name }","password":"`+sentinel+`",}`)
+		assert.Equal(t, http.StatusBadRequest, resp.Code, resp.Body.String())
+		assert.NotContains(t, resp.Body.String(), sentinel)
+		assert.Contains(t, resp.Body.String(), "body omitted")
 	})
 
 	t.Run("parse failure", func(t *testing.T) {

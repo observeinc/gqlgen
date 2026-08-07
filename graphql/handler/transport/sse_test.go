@@ -75,7 +75,20 @@ func TestSSE(t *testing.T) {
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, req)
 		assert.Equal(t, 400, w.Code, "Request return wrong status -> %d", w.Code)
-		assert.JSONEq(t, `{"errors":[{"message":"json request body could not be decoded: invalid character 'o' in literal null (expecting 'u') body:notjson"}],"data":null}`, w.Body.String())
+		assert.JSONEq(t, `{"errors":[{"message":"json request body could not be decoded: invalid character 'o' in literal null (expecting 'u') (body omitted, 7 bytes)"}],"data":null}`, w.Body.String())
+	})
+
+	t.Run("decode failure does not echo the request body", func(t *testing.T) {
+		// See the same guard in http_post_test.go. This transport also logged the
+		// body to stdout, where no host-side redaction could reach it.
+		const sentinel = "s3cr3t-do-not-echo"
+		h := initialize()
+		req := createHTTPTestRequest(`{"query":"subscription { name }","password":"` + sentinel + `",}`)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, req)
+		assert.Equal(t, 400, w.Code, "Request return wrong status -> %d", w.Code)
+		assert.NotContains(t, w.Body.String(), sentinel)
+		assert.Contains(t, w.Body.String(), "body omitted")
 	})
 
 	t.Run("parse failure", func(t *testing.T) {
