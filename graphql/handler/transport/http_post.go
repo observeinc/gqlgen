@@ -97,10 +97,14 @@ func (h POST) Do(w http.ResponseWriter, r *http.Request, exec graphql.GraphExecu
 	bodyReader := bytes.NewReader(bodyBytes)
 	if err := jsonDecode(bodyReader, &params); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		// Report the decode failure and the body size, never the bytes. The error
+		// travels through DispatchError into every response middleware, so anything
+		// interpolated here reaches whatever tracing or logging the host has wired
+		// up, and the request body carries the client's credentials (CWE-532).
 		gqlErr := gqlerror.Errorf(
-			"json request body could not be decoded: %+v body:%s",
+			"json request body could not be decoded: %+v (body omitted, %d bytes)",
 			err,
-			string(bodyBytes),
+			len(bodyBytes),
 		)
 		resp := exec.DispatchError(ctx, gqlerror.List{gqlErr})
 		writeJson(w, resp)

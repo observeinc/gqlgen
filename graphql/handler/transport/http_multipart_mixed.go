@@ -94,13 +94,16 @@ func (t MultipartMixed) Do(w http.ResponseWriter, r *http.Request, exec graphql.
 	bodyReader := io.NopCloser(strings.NewReader(bodyString))
 	if err = jsonDecode(bodyReader, &params); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		// Report the decode failure and the body size, never the bytes. See the same
+		// guard in http_post.go: the body carries the client's credentials, and both
+		// the dispatched error and this log line put it somewhere durable (CWE-532).
 		gqlErr := gqlerror.Errorf(
-			"json request body could not be decoded: %+v body:%s",
+			"json request body could not be decoded: %+v (body omitted, %d bytes)",
 			err,
-			bodyString,
+			len(bodyString),
 		)
 		resp := exec.DispatchError(ctx, gqlerror.List{gqlErr})
-		log.Printf("decoding error: %+v body:%s", err.Error(), bodyString)
+		log.Printf("decoding error: %+v (body omitted, %d bytes)", err.Error(), len(bodyString))
 		writeJson(w, resp)
 		return
 	}

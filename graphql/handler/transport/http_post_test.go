@@ -66,7 +66,21 @@ func TestPOST(t *testing.T) {
 		resp := doRequest(h, "POST", "/graphql", "notjson", "application/json", "application/json")
 		assert.Equal(t, http.StatusBadRequest, resp.Code, resp.Body.String())
 		assert.Equal(t, "application/json", resp.Header().Get("Content-Type"))
-		assert.JSONEq(t, `{"errors":[{"message":"json request body could not be decoded: invalid character 'o' in literal null (expecting 'u') body:notjson"}],"data":null}`, resp.Body.String())
+		assert.JSONEq(t, `{"errors":[{"message":"json request body could not be decoded: invalid character 'o' in literal null (expecting 'u') (body omitted, 7 bytes)"}],"data":null}`, resp.Body.String())
+	})
+
+	t.Run("decode failure does not echo the request body", func(t *testing.T) {
+		// The body can hold credentials, and the dispatched error reaches whatever
+		// logging and tracing the host has wired up, so the bytes must not travel
+		// with it (CWE-532). Asserted separately from the message above so that
+		// restoring the echo fails a test named for the property, rather than
+		// merely changing a golden string someone can update.
+		const sentinel = "s3cr3t-do-not-echo"
+		body := `{"query":"{ name }","password":"` + sentinel + `",}`
+		resp := doRequest(h, "POST", "/graphql", body, "application/json", "application/json")
+		assert.Equal(t, http.StatusBadRequest, resp.Code, resp.Body.String())
+		assert.NotContains(t, resp.Body.String(), sentinel)
+		assert.Contains(t, resp.Body.String(), "body omitted")
 	})
 
 	t.Run("parse failure", func(t *testing.T) {
